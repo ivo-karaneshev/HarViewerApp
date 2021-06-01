@@ -1,0 +1,181 @@
+﻿@model HarFileParser.Models.HarFile
+
+<ul class="tree">
+    <li class="section">
+        <input type="checkbox" id="group-pages" />
+        <label for="group-pages">Pages</label>
+        <ul>
+            @foreach (var item in Model.Pages)
+            {
+                var hash = item.GetHashCode();
+                <li class="section">
+                    <input type="checkbox" id="@hash" />
+                    <label for="@hash">Page (@item.Id)</label>
+                    <ul>
+                        <li>Page ID: @item.Id</li>
+                        <li>Page Title: @item.Title</li>
+                        <li>Date started: @item.DateStarted</li>
+                        <li>Load time: @item.LoadTime</li>
+                    </ul>
+                </li>
+            }
+        </ul>
+    </li>
+
+    <li class="section">
+        <input type="checkbox" id="group-entries" />
+        <label for="group-entries">Entries</label>
+        <ul>
+            @foreach (var item in Model.Entries)
+            {
+                var hash = item.GetHashCode();
+                <li class="section">
+                    <input type="checkbox" id="@hash" />
+                    <label for="@hash">Entry</label>
+                    <ul>
+                        <li>Page ID: @item.PageId</li>
+                        <li>Date started: @item.DateStarted</li>
+                        <li>Load time: @item.LoadTime</li>
+                        <li>Server IP: @item.ServerIP</li>
+
+                        <!-- Request -->
+                        <li class="section">
+                            <input type="checkbox" id="request-@hash" />
+                            <label for="request-@hash">Request (@item.Request.Method)</label>
+                            <ul>
+                                <li>HTTP Method: @item.Request.Method</li>
+                                <li>URL: @item.Request.URL</li>
+                                <li class="section">
+                                    <input type="checkbox" id="request-headers-@hash" />
+                                    <label for="request-headers-@hash">Headers</label>
+                                    <ul>
+                                        @foreach (var header in item.Request.Headers)
+                                        {
+                                            <li><b>Name:</b> @header.Name <b>Value:</b> @header.Value</li>
+                                        }
+                                    </ul>
+                                </li>
+                                <li class="section">
+                                    <input type="checkbox" id="request-params-@hash" />
+                                    <label for="request-params-@hash">Query string parameters</label>
+                                    <ul>
+                                        @foreach (var param in item.Request.QueryString)
+                                        {
+                                            <li><b>Name:</b> @param.Name <b>Value:</b> @param.Value</li>
+                                        }
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <!-- Response -->
+                        <li class="section">
+                            <input type="checkbox" id="response-@hash" />
+                            <label for="response-@hash">Response (@item.Response.Status)</label>
+                            <ul>
+                                <li>Status: @item.Response.Status</li>
+                                <li>Status text: @item.Response.StatusText</li>
+                                <li>Redirect URL: @item.Response.RedirectURL</li>
+                                <li class="section">
+                                    <input type="checkbox" id="response-headers-@hash" />
+                                    <label for="response-headers-@hash">Headers</label>
+                                    <ul>
+                                        @foreach (var header in item.Response.Headers)
+                                        {
+                                            <li><b>Name:</b> @header.Name <b>Value:</b> @header.Value</li>
+                                        }
+                                    </ul>
+                                </li>
+                                <li class="section">
+                                    <input type="checkbox" id="request-response-content" />
+                                    <label for="request-response-content">Content</label>
+                                    <ul>
+                                        <li>Size: @item.Response.Content.Size</li>
+                                        <li>MIME Type: @item.Response.Content.MimeType</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            }
+        </ul>
+    </li>
+</ul>
+
+<style>
+    /* (A) LIST TO MENU */
+    .tree, .section ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .tree {
+        background: #fbfbfb;
+        border: 1px solid #d2d2d2;
+    }
+
+        .tree li {
+            border-bottom: 1px solid #d2d2d2;
+            padding: 15px 10px;
+            overflow: hidden;
+        }
+
+            .tree li:last-child {
+                border: 0;
+            }
+
+    /* (B) SUB-SECTIONS */
+    /* (B1) TOGGLE SHOW/HIDE */
+    .section ul {
+        display: none;
+    }
+
+    .section input:checked ~ ul {
+        display: block;
+    }
+
+    /* (B2) HIDE CHECKBOX */
+    .section input[type=checkbox] {
+        display: none;
+    }
+
+    /* (B3) ADD EXPAND/COLLAPSE ICON  */
+    .section {
+        position: relative;
+        padding-left: 35px !important;
+    }
+
+        .section label:after {
+            content: "\0002B";
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 10px;
+            text-align: center;
+            font-size: 30px;
+            color: #f00;
+            transition: all 0.5s;
+        }
+
+        .section input:checked ~ label:after {
+            color: #23c37a;
+            transform: rotate(45deg);
+        }
+
+        /* (B4) SUB-SECTION ITEMS */
+        .section ul {
+            margin-top: 10px;
+        }
+
+            .section ul li {
+                /*color: #d43d3d;*/
+            }
+
+    /* DOES NOT MATTER */
+    .tree {
+        font-family: arial, sans-serif;
+        font-size: 18px;
+    }
+</style>

@@ -1,0 +1,119 @@
+﻿@model HarViewer.Models.Folder
+@{
+    ViewData["Title"] = "Upload";
+    ViewData["ShowFiles"] = false;
+}
+
+@section Styles
+{
+    <link rel="stylesheet" href="~/lib/jstree/dist/themes/default/style.min.css" />
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <span class="font-weight-bold mr-3">Choose folder:</span>
+        <div class="float-right">
+            <input id="folder-name" style="vertical-align:middle" type="text" />
+            <button id="btn-new" class="btn btn-primary btn-sm">Add Folder</button>
+        </div>
+        <hr />
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-3">
+        <div id="jstree">
+            <partial name="_TreeView" />
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="float-right">
+            <button id="btn-deselect" class="btn btn-secondary btn-sm">Deselect all</button>
+            <button id="btn-reset" class="btn btn-danger btn-sm">Reset Tree</button>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="margin-top: 50px">
+    <div class="col-md-8">
+        <div class="mb-2">
+            <span class="font-weight-bold mb-5">Choose files:</span>
+        </div>
+        <form id="form-upload" method="post" enctype="multipart/form-data" asp-controller="Home" asp-action="UploadFiles">
+            <div class="form-group">
+                <div class="col-md-10">
+                    <input type="file" name="files" multiple accept=".har" />
+                    <input type="hidden" name="operations" />
+                    <input type="hidden" name="destinationPath" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-10">
+                    <input class="btn btn-primary" type="submit" value="Upload" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+@section Scripts
+{
+    <script src="~/lib/jstree/dist/jstree.min.js"></script>
+    <script>
+        var btnNew = $("#btn-new");
+        var btnDeselect = $("#btn-deselect")
+        var btnReset = $("#btn-reset");
+        var treeView;
+
+        var createFolder = function () {
+            var folderName = $("#folder-name").val();
+            if (!folderName) {
+                window.alert("Please enter folder name.");
+            } else {
+                if (treeView.addNode(folderName)) {
+                    btnReset.prop("disabled", false);
+                };
+            }
+        };
+
+        var onSubmit = function (e, data) {
+            if (!treeView.hasSelection()) {
+                window.alert("Please first select a folder.");
+                return false;
+            }
+
+            if (!$("input[name='files']").val()) {
+                window.alert("Please first select files.");
+                return false;
+            }
+
+            $("input[name='operations']").val(JSON.stringify(treeView.getChanges()));
+            $("input[name='destinationPath']").val(treeView.getSelectionPath());
+
+            return true;
+        }
+
+        $(function () {
+            btnNew.on("click", createFolder);
+            btnDeselect.on("click", function () {
+                treeView.deselectAll();
+            });
+            btnReset.prop("disabled", true);
+            btnReset.on("click", function () {
+                treeView.reset();
+                btnReset.prop("disabled", true);
+            });
+            $("#form-upload").on("submit", onSubmit);
+
+            $('#jstree')
+                .jstree({
+                    "core": {
+                        "check_callback": true,
+                    }
+                });
+
+            treeView = TreeViewHelper("jstree");
+        });
+    </script>
+}

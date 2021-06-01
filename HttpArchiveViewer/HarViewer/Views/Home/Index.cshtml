@@ -1,0 +1,185 @@
+﻿@model HarViewer.Models.Folder
+@{
+    ViewData["Title"] = "Browse";
+    ViewData["ShowFiles"] = true;
+}
+
+@section Styles
+{
+    <link rel="stylesheet" href="~/lib/jstree/dist/themes/default/style.min.css" />
+}
+
+@if (Model.Files.Count == 0 && Model.Folders.Count == 0)
+{
+    <div><p>No files found. <a asp-area="" asp-controller="Home" asp-action="Upload">Upload</a> a new file.</p></div>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-3">
+            <span class="font-weight-bold mr-3">@Model.Name</span>
+            <div class="float-right">
+                <button id="btn-open" class="btn btn-primary btn-sm">Open</button>
+                <button id="btn-save" class="btn btn-primary btn-sm">Save</button>
+                <button id="btn-delete" class="btn btn-danger btn-sm">Delete</button>
+            </div>
+            <hr />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <div id="jstree">
+                <partial name="_TreeView" />
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div id="file-container"></div>
+        </div>
+    </div>
+
+    <div class="loading" style="display: none">
+        <div class="spinner">
+        </div>
+    </div>
+}
+
+@section Scripts
+{
+    <script src="~/lib/jstree/dist/jstree.min.js"></script>
+    <script>
+        var btnOpen = $("#btn-open");
+        var btnSave = $("#btn-save");
+        var btnDelete = $("#btn-delete");
+        var selectedNode;
+        var treeView;
+
+        var onSelect = function (e, data) {
+            selectedNode = data.node;
+            btnOpen.prop("disabled", selectedNode.type !== "file");
+            btnDelete.prop("disabled", false);
+        };
+
+        var onMoveNode = function (e, data) {
+            treeView.moveNode(data);
+            btnSave.prop("disabled", !treeView.hasChanges());
+        };
+
+        var openFile = function () {
+            var path = treeView.getSelectionPath();
+            if (path) {
+                $(".loading").toggle(true);
+                $.ajax({
+                    type: "GET",
+                    url: "Home/OpenFile",
+                    data: {
+                        "path": path
+                    },
+                    dataType: "html",
+                    success: function (html) {
+                        $("#file-container").html(html);
+                        $(".loading").toggle(false);
+                    },
+                    error: function () {
+                        window.alert("Error opening file.");
+                    }
+                });
+            } else {
+                window.alert("Please select a file to open.");
+            }
+        };
+
+        var saveChanges = function () {
+            $.ajax({
+                type: "POST",
+                url: "/Home/UpdateTreeView",
+                data: {
+                    operations: treeView.getChanges()
+                },
+                dataType: "json",
+                success: function (result) {
+                    if (!result) {
+                        window.alert("Error saving changes. Click ok to reload page.");
+                    }
+                    location.reload();
+                }
+            });
+        };
+
+        var onDelete = function () {
+            treeView.deleteNode();
+            btnSave.prop("disabled", !treeView.hasChanges());
+        };
+
+        $(function () {
+            btnOpen.prop("disabled", true);
+            btnOpen.on("click", openFile);
+            btnSave.prop("disabled", true);
+            btnSave.on("click", saveChanges);
+            btnDelete.prop("disabled", true);
+            btnDelete.on("click", onDelete);
+
+            $('#jstree')
+                .on("select_node.jstree", onSelect)
+                .on("move_node.jstree", onMoveNode)
+                .jstree({
+                    "core": {
+                        "check_callback": true,
+                    },
+                    "types": {
+                        "folder": {
+                            "valid_children": ["folder", "file"]
+                        },
+                        "file": {
+                            "icon": "jstree-file",
+                            "valid_children": []
+                        }
+                    },
+                    "plugins": [
+                        "dnd", "types"
+                    ]
+                });
+
+            treeView = TreeViewHelper("jstree");
+        });
+    </script>
+}
+
+
+
+<style>
+    .loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: lightgray;
+        opacity: 0.5;
+    }
+
+    .spinner {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-top: -20px;
+        margin-left: -25px;
+        text-align: center;
+        font-size: 10px;
+        border: 7px solid #f3f3f3;
+        border-top: 7px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 2s linear infinite;
+    }
+
+    @@keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>

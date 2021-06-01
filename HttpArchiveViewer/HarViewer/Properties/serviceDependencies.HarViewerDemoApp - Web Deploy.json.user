@@ -1,0 +1,45 @@
+{
+  "dependencies": {
+    "mssql1": {
+      "restored": true,
+      "restoreTime": "2021-05-31T22:20:22.302738Z"
+    }
+  },
+  "parameters": {
+    "HarViewerDemoApp.resourceGroupLocation": {
+      "Name": "HarViewerDemoApp.resourceGroupLocation",
+      "Type": null,
+      "Value": "germanywestcentral"
+    },
+    "mssql1.subscriptionId": {
+      "Name": "mssql1.subscriptionId",
+      "Type": "subscription",
+      "Value": "fa165908-88f7-47d9-a870-ac79603eca23"
+    },
+    "HarViewerDemoApp.resourceGroupName": {
+      "Name": "HarViewerDemoApp.resourceGroupName",
+      "Type": "resourceGroup",
+      "Value": "HarViewerDemoAppResourceGroup"
+    },
+    "mssql1.resourceGroupName": {
+      "Name": "mssql1.resourceGroupName",
+      "Type": "resourceGroup",
+      "Value": "HarViewerDemoAppResourceGroup"
+    },
+    "subscriptionId": {
+      "Name": "subscriptionId",
+      "Type": "subscription",
+      "Value": "fa165908-88f7-47d9-a870-ac79603eca23"
+    },
+    "HarViewerDemoApp.subscriptionId": {
+      "Name": "HarViewerDemoApp.subscriptionId",
+      "Type": "subscription",
+      "Value": "fa165908-88f7-47d9-a870-ac79603eca23"
+    },
+    "HarViewerDemoApp.resourceName": {
+      "Name": "HarViewerDemoApp.resourceName",
+      "Type": null,
+      "Value": "HarViewerDemoApp"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+﻿@model HarViewer.Models.Folder
+@{
+    var showFiles = false;
+    bool.TryParse(ViewData["ShowFiles"].ToString(), out showFiles);
+
+    void RenderFolder(Folder root)
+    {
+        <ul>@root.Name
+            @foreach (var folder in root.Folders)
+            {
+                <li data-jstree='{"opened":"true","type":"folder"}' data-path="@folder.Path" data-name="@folder.Name">
+                    @folder.Name
+                    @{ RenderFolder(folder); }
+                </li>
+            }
+
+            @if (showFiles)
+            {
+                foreach (var file in root.Files)
+                {
+                    <li data-jstree='{"type":"file"}' data-path="@file.Path" data-name="@file.Name">@file.Name</li>
+                }
+            }
+        </ul>
+    }
+
+    RenderFolder(Model);
+}
